@@ -23,10 +23,13 @@ function expectPngBytes(bytes: Uint8Array) {
 }
 
 test("encodePNG returns plain Uint8Array", async () => {
-  const scene = createSceneFromGLTF({ asset: { version: "2.0" } }, {
-    buffers: [],
-    images: [],
-  })
+  const scene = createSceneFromGLTF(
+    { asset: { version: "2.0" } },
+    {
+      buffers: [],
+      images: [],
+    },
+  )
   const { bitmap } = renderSceneFromGLTF(
     scene,
     { width: 16, height: 16 },
