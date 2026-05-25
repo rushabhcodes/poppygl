@@ -1,4 +1,4 @@
-export { encodePNG } from "../lib/image/encodePNG"
+export { encodePNG } from "../lib/index"
 export { renderGLTFToPNGBuffer } from "./renderGLTFToPNGBuffer"
 export { renderGLTFToPNGFile } from "./renderGLTFToPNGFile"
 export { runCLI } from "./runCLI"
