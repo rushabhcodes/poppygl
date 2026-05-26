@@ -1,34 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PoppyGL Browser Compatibility Test</title>
-  </head>
-  <body>
-    <script type="module">
-      window.__poppyglCompat = { status: "running" }
+import React, { useEffect, useState } from "react"
+import { renderGLTFToPNGBuffer } from "../../lib"
 
+type CompatState =
+  | { status: "running" }
+  | {
+      status: "done"
+      globalsBeforeImport: {
+        hasBufferGlobal: boolean
+        hasProcessGlobal: boolean
+      }
+      inMemory: {
+        isUint8Array: boolean
+        constructorName: string
+        length: number
+      }
+      url: {
+        isUint8Array: boolean
+        constructorName: string
+        length: number
+      }
+      browserPathError: string
+    }
+  | {
+      status: "error"
+      message: string
+      stack?: string
+    }
+
+const renderOptions = {
+  width: 96,
+  height: 72,
+  grid: { size: 8 },
+  camPos: [8, 6, 8] as [number, number, number],
+  lookAt: [0, 0, 0] as [number, number, number],
+}
+
+export default function BrowserCompatPage() {
+  const [state, setState] = useState<CompatState>({ status: "running" })
+
+  useEffect(() => {
+    const run = async () => {
       try {
         const globalsBeforeImport = {
           hasBufferGlobal: typeof globalThis.Buffer !== "undefined",
           hasProcessGlobal: typeof globalThis.process !== "undefined",
         }
 
-        const { renderGLTFToPNGBuffer } = await import("/lib/index.ts")
         const emptyGLTF = JSON.stringify({
           asset: { version: "2.0" },
           scenes: [{ nodes: [] }],
           scene: 0,
         })
-
-        const renderOptions = {
-          width: 96,
-          height: 72,
-          grid: { size: 8 },
-          camPos: [8, 6, 8],
-          lookAt: [0, 0, 0],
-        }
 
         const inMemoryPng = await renderGLTFToPNGBuffer(emptyGLTF, renderOptions)
         const urlPng = await renderGLTFToPNGBuffer(
@@ -44,7 +66,7 @@
             error instanceof Error ? error.message : String(error)
         }
 
-        window.__poppyglCompat = {
+        setState({
           status: "done",
           globalsBeforeImport,
           inMemory: {
@@ -58,14 +80,23 @@
             length: urlPng.length,
           },
           browserPathError,
-        }
+        })
       } catch (error) {
-        window.__poppyglCompat = {
+        setState({
           status: "error",
           message: error instanceof Error ? error.message : String(error),
           stack: error instanceof Error ? error.stack : undefined,
-        }
+        })
       }
-    </script>
-  </body>
-</html>
+    }
+
+    run()
+  }, [])
+
+  return (
+    <main style={{ fontFamily: "monospace", padding: 16 }}>
+      <h1>Browser Compatibility Fixture</h1>
+      <pre data-testid="compat-state">{JSON.stringify(state, null, 2)}</pre>
+    </main>
+  )
+}

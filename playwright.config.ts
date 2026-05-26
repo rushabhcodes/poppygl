@@ -13,7 +13,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "list",
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL: "http://localhost:5050",
     trace: "on-first-retry",
   },
   projects: [
@@ -23,9 +23,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "bun x vite --host 127.0.0.1 --port 4173",
-    url: "http://127.0.0.1:4173",
-    reuseExistingServer: true,
+    command: "PORT=5050 bun run start",
+    url: "http://localhost:5050",
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 })
