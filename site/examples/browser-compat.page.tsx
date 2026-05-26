@@ -52,7 +52,10 @@ export default function BrowserCompatPage() {
           scene: 0,
         })
 
-        const inMemoryPng = await renderGLTFToPNGBuffer(emptyGLTF, renderOptions)
+        const inMemoryPng = await renderGLTFToPNGBuffer(
+          emptyGLTF,
+          renderOptions,
+        )
         const urlPng = await renderGLTFToPNGBuffer(
           "/tests/basics/soic8.gltf",
           renderOptions,
