@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PoppyGL Browser Compatibility Test</title>
+  </head>
+  <body>
+    <script type="module">
+      window.__poppyglCompat = { status: "running" }
+
+      try {
+        const globalsBeforeImport = {
+          hasBufferGlobal: typeof globalThis.Buffer !== "undefined",
+          hasProcessGlobal: typeof globalThis.process !== "undefined",
+        }
+
+        const { renderGLTFToPNGBuffer } = await import("/lib/index.ts")
+        const emptyGLTF = JSON.stringify({
+          asset: { version: "2.0" },
+          scenes: [{ nodes: [] }],
+          scene: 0,
+        })
+
+        const renderOptions = {
+          width: 96,
+          height: 72,
+          grid: { size: 8 },
+          camPos: [8, 6, 8],
+          lookAt: [0, 0, 0],
+        }
+
+        const inMemoryPng = await renderGLTFToPNGBuffer(emptyGLTF, renderOptions)
+        const urlPng = await renderGLTFToPNGBuffer(
+          "/tests/basics/soic8.gltf",
+          renderOptions,
+        )
+
+        let browserPathError = ""
+        try {
+          await renderGLTFToPNGBuffer("tests/basics/soic8.gltf", renderOptions)
+        } catch (error) {
+          browserPathError =
+            error instanceof Error ? error.message : String(error)
+        }
+
+        window.__poppyglCompat = {
+          status: "done",
+          globalsBeforeImport,
+          inMemory: {
+            isUint8Array: inMemoryPng instanceof Uint8Array,
+            constructorName: inMemoryPng.constructor.name,
+            length: inMemoryPng.length,
+          },
+          url: {
+            isUint8Array: urlPng instanceof Uint8Array,
+            constructorName: urlPng.constructor.name,
+            length: urlPng.length,
+          },
+          browserPathError,
+        }
+      } catch (error) {
+        window.__poppyglCompat = {
+          status: "error",
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+        }
+      }
+    </script>
+  </body>
+</html>

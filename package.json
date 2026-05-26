@@ -15,11 +15,13 @@
     "build": "tsup-node ./lib/index.ts --format esm --dts",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "test": "bun test"
+    "test": "bun test",
+    "test:playwright": "playwright test"
   },
   "type": "module",
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
+    "@playwright/test": "^1.60.0",
     "@tscircuit/alphabet": "0.0.23",
     "@types/bun": "^1.2.23",
     "@types/readable-stream": "^4.0.21",
