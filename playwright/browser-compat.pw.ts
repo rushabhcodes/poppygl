@@ -1,9 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-// Enable this when the root browser entrypoint is browser-safe and backward-compatible.
-test.skip("browser root export renders without Node globals and rejects filesystem paths separately", async ({
-  page,
-}) => {
+test("browser root export renders without Node globals", async ({ page }) => {
   const fixtureId = encodeURIComponent(
     JSON.stringify({ path: "site/examples/browser-compat.page.tsx" }),
   )
@@ -24,20 +21,12 @@ test.skip("browser root export renders without Node globals and rejects filesyst
     (await page.getByTestId("compat-state").textContent()) ?? "null",
   )
   expect(result.status).toBe("done")
+  expect(result.noNodeGlobals).toBe(true)
 
-  expect(result.globalsBeforeImport.hasBufferGlobal).toBe(false)
-  expect(result.globalsBeforeImport.hasProcessGlobal).toBe(false)
+  expect(result.renders.inMemory.width).toBe(320)
+  expect(result.renders.inMemory.height).toBe(240)
+  expect(result.renders.inMemory.dataUrl).toContain("data:image/png")
 
-  expect(result.inMemory.isUint8Array).toBe(true)
-  expect(result.inMemory.constructorName).toBe("Uint8Array")
-  expect(result.inMemory.length).toBeGreaterThan(100)
-
-  expect(result.url.isUint8Array).toBe(true)
-  expect(result.url.constructorName).toBe("Uint8Array")
-  expect(result.url.length).toBeGreaterThan(100)
-
-  expect(result.browserPathError).toContain(
-    "could not parse the input as GLTF JSON",
-  )
-  expect(result.browserPathError).toContain("fetchable URL")
+  expect(result.renders.fromUrl.dataUrl).toContain("data:image/png")
+  expect(result.renders.fromGlb.dataUrl).toContain("data:image/png")
 })
